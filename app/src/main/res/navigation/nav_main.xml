@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/listaTarefasFragment">
+
+    <fragment
+        android:id="@+id/listaTarefasFragment"
+        android:name="com.example.nuvem.todolist.ListaTarefasFragment"
+        android:label="fragment_lista_tarefas"
+        tools:layout="@layout/fragment_lista_tarefas" >
+        <action
+            android:id="@+id/action_listaTarefasFragment_to_detalhesTarefaFragment"
+            app:destination="@id/detalhesTarefaFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detalhesTarefaFragment"
+        android:name="com.example.nuvem.todolist.DetalhesTarefaFragment"
+        android:label="fragment_detalhes_tarefa"
+        tools:layout="@layout/fragment_detalhes_tarefa" />
+</navigation>
