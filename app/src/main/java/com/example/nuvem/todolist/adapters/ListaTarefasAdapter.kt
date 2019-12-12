@@ -1,6 +1,5 @@
-package com.example.nuvem.todolist.recyclerview
+package com.example.nuvem.todolist.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nuvem.todolist.ListaTarefasFragmentDirections
 import com.example.nuvem.todolist.R
 
-class ListaTarefasAdapter(private val fragment: Fragment): RecyclerView.Adapter<ListaTarefasAdapter.ListaTarefasViewHolder>() {
+class ListaTarefasAdapter(private val fragment: Fragment) : RecyclerView.Adapter<ListaTarefasAdapter.ListaTarefasViewHolder>() {
 
     // ViewHolder
     class ListaTarefasViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
