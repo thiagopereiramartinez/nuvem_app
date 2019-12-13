@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_main"
-    app:startDestination="@id/listaTarefasFragment">
+    app:startDestination="@id/listaListasFragment">
 
     <fragment
         android:id="@+id/listaTarefasFragment"
-        android:name="com.example.nuvem.todolist.ListaTarefasFragment"
+        android:name="com.example.nuvem.todolist.TarefasFragment"
         android:label="fragment_lista_tarefas"
         tools:layout="@layout/fragment_lista_tarefas" >
         <action
@@ -23,4 +23,13 @@
         android:name="com.example.nuvem.todolist.DetalhesTarefaFragment"
         android:label="fragment_detalhes_tarefa"
         tools:layout="@layout/fragment_detalhes_tarefa" />
+    <fragment
+        android:id="@+id/listaListasFragment"
+        android:name="com.example.nuvem.todolist.ListasFragment"
+        android:label="fragment_lista_listas"
+        tools:layout="@layout/fragment_lista_listas" >
+        <action
+            android:id="@+id/action_listaListasFragment_to_listaTarefasFragment"
+            app:destination="@id/listaTarefasFragment" />
+    </fragment>
 </navigation>

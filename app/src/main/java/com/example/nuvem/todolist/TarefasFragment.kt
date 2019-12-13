@@ -6,28 +6,29 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nuvem.todolist.dagger.DaggerFragmentComponent
-import com.example.nuvem.todolist.net.ListasService
-import com.example.nuvem.todolist.adapters.ListaTarefasAdapter
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.nuvem.todolist.adapters.TarefasAdapter
+import com.example.nuvem.todolist.viewmodels.TarefaViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dagger.Module
-import dagger.Provides
-import javax.inject.Inject
 
-class ListaTarefasFragment : Fragment() {
+class TarefasFragment : Fragment() {
 
     // Variáveis
+    private lateinit var swipeToRefresh: SwipeRefreshLayout
     private lateinit var btnNovo: FloatingActionButton
     private lateinit var recyclerView: RecyclerView
-    private val adapter: ListaTarefasAdapter by lazy {
-        ListaTarefasAdapter(this)
+    private val adapter: TarefasAdapter by lazy {
+        TarefasAdapter(this, arrayListOf())
     }
-
-    @Inject lateinit var teste: ListasService
+    private val model: TarefaViewModel by lazy {
+        ViewModelProviders.of(this)[TarefaViewModel::class.java]
+    }
 
     // onCreateView
     override fun onCreateView(
@@ -36,10 +37,15 @@ class ListaTarefasFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_lista_tarefas, container, false)
 
-        // Injetar dependências
-        DaggerFragmentComponent.builder().build().inject(this)
+        // Configurar ViewModel
+        model.getDados("5df28329886fe20010d78a44")
+        model.tarefas?.observe(this, Observer {
+            adapter.insertAll(it)
+            swipeToRefresh.isRefreshing = false
+        })
 
         // Bind components
+        swipeToRefresh = view.findViewById(R.id.swipeToRefresh)
         recyclerView = view.findViewById(R.id.recyclerView)
         btnNovo = view.findViewById(R.id.btnNovo)
 
@@ -63,18 +69,21 @@ class ListaTarefasFragment : Fragment() {
 
     // Setup RecyclerView
     private fun setupRecyclerView() {
-
         recyclerView.apply {
             layoutManager = LinearLayoutManager(this.context)
-            adapter = this@ListaTarefasFragment.adapter
+            adapter = this@TarefasFragment.adapter
             addItemDecoration(
                 DividerItemDecoration(
-                    this@ListaTarefasFragment.context,
+                    this@TarefasFragment.context,
                     DividerItemDecoration.VERTICAL
                 )
             )
         }
 
+        swipeToRefresh.isRefreshing = true
+        swipeToRefresh.setOnRefreshListener {
+            model.loadListas("5df28329886fe20010d78a44", model.tarefas!!)
+        }
     }
 
 }

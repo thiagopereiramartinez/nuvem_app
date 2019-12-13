@@ -1,6 +1,7 @@
 package com.example.nuvem.todolist.net
 
 import com.example.nuvem.todolist.models.ListaModel
+import com.example.nuvem.todolist.models.ResponseModel
 import dagger.Module
 import dagger.Provides
 import retrofit2.Call
@@ -18,7 +19,7 @@ interface ListasService {
 
     // Inserir lista
     @POST("listas")
-    fun inserir(@Body lista: ListaModel)
+    fun inserir(@Body lista: ListaModel) : Call<ResponseModel>
 
     // Alterar lista
     @PUT("listas/{id}")
