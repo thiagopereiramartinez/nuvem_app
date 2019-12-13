@@ -8,7 +8,6 @@
     <fragment
         android:id="@+id/listaTarefasFragment"
         android:name="com.example.nuvem.todolist.TarefasFragment"
-        android:label="fragment_lista_tarefas"
         tools:layout="@layout/fragment_lista_tarefas" >
         <action
             android:id="@+id/action_listaTarefasFragment_to_detalhesTarefaFragment"
@@ -17,19 +16,24 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <argument
+            android:name="lista"
+            app:argType="com.example.nuvem.todolist.models.ListaModel" />
     </fragment>
     <fragment
         android:id="@+id/detalhesTarefaFragment"
         android:name="com.example.nuvem.todolist.DetalhesTarefaFragment"
-        android:label="fragment_detalhes_tarefa"
         tools:layout="@layout/fragment_detalhes_tarefa" />
     <fragment
         android:id="@+id/listaListasFragment"
         android:name="com.example.nuvem.todolist.ListasFragment"
-        android:label="fragment_lista_listas"
         tools:layout="@layout/fragment_lista_listas" >
         <action
             android:id="@+id/action_listaListasFragment_to_listaTarefasFragment"
-            app:destination="@id/listaTarefasFragment" />
+            app:destination="@id/listaTarefasFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 </navigation>

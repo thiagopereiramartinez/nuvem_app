@@ -8,11 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.nuvem.todolist.adapters.TarefasAdapter
+import com.example.nuvem.todolist.models.ListaModel
 import com.example.nuvem.todolist.viewmodels.TarefaViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -29,6 +32,7 @@ class TarefasFragment : Fragment() {
     private val model: TarefaViewModel by lazy {
         ViewModelProviders.of(this)[TarefaViewModel::class.java]
     }
+    val args: TarefasFragmentArgs by navArgs()
 
     // onCreateView
     override fun onCreateView(
@@ -37,8 +41,11 @@ class TarefasFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_lista_tarefas, container, false)
 
+        // Setar o titulo do Toolbar com o nome da lista
+        activity?.title = args.lista.nome
+
         // Configurar ViewModel
-        model.getDados("5df28329886fe20010d78a44")
+        model.getDados(args.lista.id)
         model.tarefas?.observe(this, Observer {
             adapter.insertAll(it)
             swipeToRefresh.isRefreshing = false
@@ -72,6 +79,7 @@ class TarefasFragment : Fragment() {
         recyclerView.apply {
             layoutManager = LinearLayoutManager(this.context)
             adapter = this@TarefasFragment.adapter
+            setHasFixedSize(true)
             addItemDecoration(
                 DividerItemDecoration(
                     this@TarefasFragment.context,
@@ -82,7 +90,7 @@ class TarefasFragment : Fragment() {
 
         swipeToRefresh.isRefreshing = true
         swipeToRefresh.setOnRefreshListener {
-            model.loadListas("5df28329886fe20010d78a44", model.tarefas!!)
+            model.loadListas(args.lista.id, model.tarefas!!)
         }
     }
 

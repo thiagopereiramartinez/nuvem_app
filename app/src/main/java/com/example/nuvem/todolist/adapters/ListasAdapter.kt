@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -39,7 +40,7 @@ class ListasAdapter(
     // onBindViewHolder
     override fun onBindViewHolder(holder: ListasViewHolder, position: Int) {
         holder.itemView.setOnClickListener {
-            val action = ListasFragmentDirections.actionListaListasFragmentToListaTarefasFragment()
+            val action = ListasFragmentDirections.actionListaListasFragmentToListaTarefasFragment(list.get(position))
             fragment.findNavController().navigate(action)
         }
 

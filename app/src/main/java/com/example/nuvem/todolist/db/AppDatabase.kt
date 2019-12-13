@@ -11,4 +11,8 @@ import com.example.nuvem.todolist.models.TarefaModel
 ], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
+    abstract fun listasDao(): ListasDao
+
+    abstract fun tarefasDao(): TarefasDao
+
 }
