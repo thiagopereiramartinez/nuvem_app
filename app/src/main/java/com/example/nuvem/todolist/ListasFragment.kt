@@ -2,13 +2,12 @@ package com.example.nuvem.todolist
 
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -20,7 +19,9 @@ import com.example.nuvem.todolist.adapters.ListasAdapter
 import com.example.nuvem.todolist.models.ListaModel
 import com.example.nuvem.todolist.net.ListasService
 import com.example.nuvem.todolist.viewmodels.ListaViewModel
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import javax.inject.Inject
 
@@ -63,17 +64,27 @@ class ListasFragment : Fragment() {
             val sheetDialog = BottomSheetDialog(this.context!!)
             val sheetView = activity!!.layoutInflater.inflate(R.layout.bottom_sheet_nova_lista, null)
 
-            val listaText: EditText = sheetView.findViewById(R.id.listaEdit)
-            val btnConfirmar: ImageButton = sheetView.findViewById(R.id.btnConfirmar)
+            val listaText = (sheetView.findViewById(R.id.listaEdit) as EditText).apply {
+                it.requestFocus()
+            }
+
+            // Botão confirmar
+            val btnConfirmar: Button = sheetView.findViewById(R.id.btnSalvar)
             btnConfirmar.setOnClickListener {
                 model.inserirLista(ListaModel("", listaText.text.toString()))
                 sheetDialog.dismiss()
             }
 
+            // Abrir dialog
             sheetDialog.apply {
                 setContentView(sheetView)
+                setOnShowListener {
+                    listaText.requestFocus()
+                    sheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+                }
                 show()
             }
+
         }
 
         return view

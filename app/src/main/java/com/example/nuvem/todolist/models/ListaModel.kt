@@ -10,5 +10,5 @@ import java.io.Serializable
 @Entity(tableName = "listas")
 data class ListaModel(
     @PrimaryKey val id: String,
-    @ColumnInfo val nome: String
+    @ColumnInfo var nome: String
 ) : Serializable

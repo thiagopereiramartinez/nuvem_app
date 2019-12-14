@@ -1,17 +1,20 @@
 package com.example.nuvem.todolist.adapters
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
+import android.app.AlertDialog
+import android.content.Context
+import android.view.*
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nuvem.todolist.ListasFragmentDirections
 import com.example.nuvem.todolist.R
 import com.example.nuvem.todolist.TarefasFragmentDirections
 import com.example.nuvem.todolist.models.ListaModel
+import com.example.nuvem.todolist.viewmodels.ListaViewModel
 
 class ListasAdapter(
     private val fragment: Fragment,
@@ -22,11 +25,11 @@ class ListasAdapter(
     class ListasViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val titulo: TextView
-        val totalTarefas: TextView
+        val btnMore: ImageButton
 
         init {
             titulo = itemView.findViewById(R.id.titulo)
-            totalTarefas = itemView.findViewById(R.id.totalTarefas)
+            btnMore = itemView.findViewById(R.id.btnMore)
         }
 
     }
@@ -45,6 +48,78 @@ class ListasAdapter(
         }
 
         holder.titulo.text = list.get(position).nome
+
+        // Menu de opções
+        holder.btnMore.setOnClickListener {
+            val popup = PopupMenu(fragment.context!!, holder.btnMore)
+            popup.apply {
+                menuInflater.inflate(R.menu.popup_menu, menu)
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        // Editar
+                        R.id.menuEditar -> {
+                            editar(list.get(position), position)
+                            true
+                        }
+                        // Excluir
+                        R.id.menuExcluir -> {
+                            excluir(list.get(position))
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                show()
+            }
+        }
+    }
+
+    // Editar
+    private fun editar(lista: ListaModel, position: Int) {
+        // Inflar a caixa de texto
+        val view = LayoutInflater.from(fragment.context).inflate(R.layout.edit_dialog, null )
+        val editText:EditText = view.findViewById(R.id.editText)
+        editText.setText(lista.nome)
+        editText.requestFocus()
+
+        // Abrir dialog
+        val alert = AlertDialog
+            .Builder(fragment.context)
+            .setTitle("Editar lista")
+            .setView(view)
+            .setPositiveButton("Salvar") { _, _ ->
+                lista.nome = editText.text.toString()
+
+                // Fazer edição
+                val model = ViewModelProviders.of(fragment)[ListaViewModel::class.java]
+                model.editarLista(lista)
+                notifyItemChanged(position)
+            }
+            .setNegativeButton("Cancelar") { dialogInterface, _ ->
+                dialogInterface.dismiss()
+            }
+            .create()
+
+        alert.setOnShowListener {
+            alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        }
+
+        alert.show()
+    }
+
+    // Excluir
+    private fun excluir(lista: ListaModel) {
+        AlertDialog
+            .Builder(fragment.context)
+            .setMessage("Deseja excluir esta lista ?")
+            .setPositiveButton("Sim") { _, _ ->
+                val model = ViewModelProviders.of(fragment)[ListaViewModel::class.java]
+                model.excluirLista(lista)
+            }
+            .setNegativeButton("Não") { dialogInterface, _ ->
+                dialogInterface.dismiss()
+            }
+            .show()
     }
 
     // insertAll

@@ -23,7 +23,11 @@
     <fragment
         android:id="@+id/detalhesTarefaFragment"
         android:name="com.example.nuvem.todolist.DetalhesTarefaFragment"
-        tools:layout="@layout/fragment_detalhes_tarefa" />
+        tools:layout="@layout/fragment_detalhes_tarefa" >
+        <argument
+            android:name="tarefa"
+            app:argType="com.example.nuvem.todolist.models.TarefaModel" />
+    </fragment>
     <fragment
         android:id="@+id/listaListasFragment"
         android:name="com.example.nuvem.todolist.ListasFragment"

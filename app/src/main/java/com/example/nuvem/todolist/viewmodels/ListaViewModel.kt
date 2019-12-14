@@ -84,15 +84,62 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
     fun inserirLista(listModel: ListaModel) {
         listas.value = listas.value?.plus(listModel)?.sortedBy { it.nome }
 
+        // Inserir na API
         listasService.inserir(listModel).enqueue(object: Callback<ResponseModel> {
-            override fun onFailure(call: Call<ResponseModel>, t: Throwable) {
-                println(t)
-            }
+            override fun onFailure(call: Call<ResponseModel>, t: Throwable) = Unit
 
-            override fun onResponse(call: Call<ResponseModel>, response: Response<ResponseModel>) {
-                println("OK")
-            }
+            override fun onResponse(
+                call: Call<ResponseModel>,
+                response: Response<ResponseModel>
+            ) = Unit
         })
+
+        // Inserir no banco de dados
+        Executors.newSingleThreadExecutor().execute {
+            db.listasDao().insert(listModel)
+        }
+    }
+
+    // Editar lista
+    fun editarLista(listModel: ListaModel) {
+        listas.value?.filter { it.id == listModel.id }?.first()?.apply {
+            nome = listModel.nome
+
+            // Editar na API
+            listasService.alterar(listModel.id, listModel).enqueue(object: Callback<ResponseModel> {
+                override fun onFailure(call: Call<ResponseModel>, t: Throwable) = Unit
+
+                override fun onResponse(
+                    call: Call<ResponseModel>,
+                    response: Response<ResponseModel>
+                ) = Unit
+            })
+
+            // Editar no banco de dados
+            Executors.newSingleThreadExecutor().execute {
+                db.listasDao().insert(this)
+            }
+        }
+    }
+
+    // Excluir lista
+    fun excluirLista(listModel: ListaModel) {
+        listas.value = listas.value?.minus(listModel)?.sortedBy { it.nome }
+
+        // Excluir na API
+        listasService.excluir(listModel.id).enqueue(object: Callback<ResponseModel> {
+            override fun onFailure(call: Call<ResponseModel>, t: Throwable) = Unit
+
+            override fun onResponse(
+                call: Call<ResponseModel>,
+                response: Response<ResponseModel>
+            ) = Unit
+        })
+
+        // Remover do banco de dados
+        Executors.newSingleThreadExecutor().execute {
+            db.listasDao().delete(listModel)
+        }
     }
 
 }

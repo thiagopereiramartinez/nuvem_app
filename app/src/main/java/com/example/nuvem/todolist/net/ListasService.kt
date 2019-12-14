@@ -23,10 +23,10 @@ interface ListasService {
 
     // Alterar lista
     @PUT("listas/{id}")
-    fun alterar(@Path("id") id: Int, @Body lista: ListaModel)
+    fun alterar(@Path("id") id: String, @Body lista: ListaModel) : Call<ResponseModel>
 
     // Apagar lista
     @DELETE("listas/{id}")
-    fun excluir(@Path("id") id: Int)
+    fun excluir(@Path("id") id: String) : Call<ResponseModel>
 
 }

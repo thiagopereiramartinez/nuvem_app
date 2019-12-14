@@ -66,7 +66,7 @@ class TarefasAdapter(
 
         // Editar tarefa
         holder.itemView.setOnClickListener {
-            val action = TarefasFragmentDirections.actionListaTarefasFragmentToDetalhesTarefaFragment()
+            val action = TarefasFragmentDirections.actionListaTarefasFragmentToDetalhesTarefaFragment(listTarefas.get(position))
             fragment.findNavController().navigate(action)
         }
     }
