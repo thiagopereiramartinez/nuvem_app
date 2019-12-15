@@ -4,9 +4,9 @@ import android.view.*
 import android.widget.*
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nuvem.todolist.ListasFragment
-import com.example.nuvem.todolist.ListasFragmentDirections
+import com.example.nuvem.todolist.fragments.ListasFragment
 import com.example.nuvem.todolist.R
+import com.example.nuvem.todolist.fragments.ListasFragmentDirections
 import com.example.nuvem.todolist.models.ListaModel
 
 class ListasAdapter(

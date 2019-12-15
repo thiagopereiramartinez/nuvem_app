@@ -1,8 +1,9 @@
-package com.example.nuvem.todolist
+package com.example.nuvem.todolist.fragments
 
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.DisplayMetrics
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,6 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
@@ -19,9 +19,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.nuvem.todolist.R
 import com.example.nuvem.todolist.adapters.TarefasAdapter
 import com.example.nuvem.todolist.extensions.snackbar
-import com.example.nuvem.todolist.extensions.toast
 import com.example.nuvem.todolist.models.TarefaModel
 import com.example.nuvem.todolist.viewmodels.TarefaViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -38,9 +38,13 @@ class TarefasFragment : Fragment() {
     private val adapter: TarefasAdapter by lazy {
         TarefasAdapter(this, arrayListOf())
     }
+
+    // ViewModel
     private val model: TarefaViewModel by lazy {
         ViewModelProviders.of(this)[TarefaViewModel::class.java]
     }
+
+    // Argumentos recebidos pelo fragment anterior
     val args: TarefasFragmentArgs by navArgs()
 
     // onCreateView
@@ -53,7 +57,7 @@ class TarefasFragment : Fragment() {
         // Setar o titulo do Toolbar com o nome da lista
         activity?.title = args.lista.nome
 
-        // Configurar ViewModel
+        // Adicionar observador ao ViewModel
         model.getDados(args.lista.id)
         model.tarefas?.observe(this, Observer {
             adapter.insertAll(it)
@@ -64,7 +68,7 @@ class TarefasFragment : Fragment() {
 
         })
 
-        // Bind components
+        // Bindar componentes
         swipeToRefresh = view.findViewById(R.id.swipeToRefresh)
         recyclerView = view.findViewById(R.id.recyclerView)
         btnNovo = view.findViewById(R.id.btnNovo)
@@ -72,45 +76,18 @@ class TarefasFragment : Fragment() {
         emptyState.text = "Nenhuma tarefa"
         emptyState.visibility = View.GONE
 
-        // Setup RecyclerView
+        // Configurar RecyclerView
         setupRecyclerView()
 
         // Botão novo
         btnNovo.setOnClickListener {
-            val sheetDialog = BottomSheetDialog(this.context!!)
-            val sheetView = activity!!.layoutInflater.inflate(R.layout.bottom_sheet_nova_tarefa, null)
-
-            val tarefaText = (sheetView.findViewById(R.id.tarefaEdit) as EditText).apply {
-                it.requestFocus()
-            }
-
-            // Botão confirmar
-            val btnConfirmar: Button = sheetView.findViewById(R.id.btnSalvar)
-            btnConfirmar.setOnClickListener {
-                model.inserirTarefa(args.lista.id, TarefaModel(
-                    id = UUID.randomUUID().toString(),
-                    idlista = args.lista.id,
-                    tarefa = tarefaText.text.toString()
-                ))
-                sheetDialog.dismiss()
-            }
-
-            // Abrir dialog
-            sheetDialog.apply {
-                setContentView(sheetView)
-                setOnShowListener {
-                    tarefaText.requestFocus()
-                    sheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-                }
-                show()
-            }
-
+            incluir()
         }
 
         return view
     }
 
-    // Setup RecyclerView
+    // Configurar RecyclerView
     private fun setupRecyclerView() {
         recyclerView.apply {
             layoutManager = LinearLayoutManager(this.context)
@@ -124,9 +101,58 @@ class TarefasFragment : Fragment() {
             )
         }
 
+        // Configurar o Swipe To Refresh
         swipeToRefresh.isRefreshing = true
         swipeToRefresh.setOnRefreshListener {
             model.loadTarefas(args.lista.id, model.tarefas!!)
+        }
+    }
+
+    // Incluir
+    private fun incluir() {
+        val sheetDialog = BottomSheetDialog(this.context!!)
+        val sheetView = activity!!.layoutInflater.inflate(R.layout.bottom_sheet_nova_tarefa, null)
+
+        val tarefaText = (sheetView.findViewById(R.id.tarefaEdit) as EditText).apply {
+            requestFocus()
+        }
+
+        // Botão confirmar
+        val btnConfirmar: Button = sheetView.findViewById(R.id.btnSalvar)
+        btnConfirmar.setOnClickListener {
+            if (tarefaText.text.toString().trim().length == 0) {
+                sheetDialog.dismiss()
+                return@setOnClickListener
+            }
+
+            model.inserirTarefa(args.lista.id, TarefaModel(
+                id = UUID.randomUUID().toString(),
+                idlista = args.lista.id,
+                tarefa = tarefaText.text.toString()
+            ))
+            sheetDialog.dismiss()
+        }
+
+        // Abrir dialog
+        sheetDialog.apply {
+            setContentView(sheetView)
+            setOnShowListener {
+                // Abrir o teclado quando mostrar o alert
+                sheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+
+                // Corrigir sobreposição do teclado
+                val childLayout = sheetView.layoutParams
+                val displayMetrics = DisplayMetrics()
+
+                requireActivity()
+                    .windowManager
+                    .defaultDisplay
+                    .getMetrics(displayMetrics)
+
+                childLayout.height = displayMetrics.heightPixels / 2
+                sheetView.layoutParams = childLayout
+            }
+            show()
         }
     }
 
@@ -143,7 +169,12 @@ class TarefasFragment : Fragment() {
             .Builder(context)
             .setTitle("Editar tarefa")
             .setView(view)
-            .setPositiveButton("Salvar") { _, _ ->
+            .setPositiveButton("Salvar") { dialogInterface, _ ->
+                if (editText.text.toString().isBlank()) {
+                    dialogInterface.dismiss()
+                    return@setPositiveButton
+                }
+
                 tarefa.tarefa = editText.text.toString()
 
                 // Fazer edição
@@ -155,6 +186,7 @@ class TarefasFragment : Fragment() {
             }
             .create()
 
+        // Abrir o teclado quando abrir o alert
         alert.setOnShowListener {
             alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         }

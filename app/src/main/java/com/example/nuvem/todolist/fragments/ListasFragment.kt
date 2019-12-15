@@ -1,36 +1,29 @@
-package com.example.nuvem.todolist
+package com.example.nuvem.todolist.fragments
 
 
 import android.app.AlertDialog
-import android.opengl.Visibility
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.view.*
-import androidx.fragment.app.Fragment
 import android.widget.Button
+import androidx.fragment.app.Fragment
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.nuvem.todolist.R
 import com.example.nuvem.todolist.adapters.ListasAdapter
 import com.example.nuvem.todolist.extensions.snackbar
 import com.example.nuvem.todolist.models.ListaModel
-import com.example.nuvem.todolist.net.ListasService
 import com.example.nuvem.todolist.viewmodels.ListaViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
-import javax.inject.Inject
 
 class ListasFragment : Fragment() {
 
@@ -42,6 +35,8 @@ class ListasFragment : Fragment() {
     private val adapter: ListasAdapter by lazy {
         ListasAdapter(this, arrayListOf())
     }
+
+    // ViewModel
     private val model: ListaViewModel by lazy {
         ViewModelProviders.of(this)[ListaViewModel::class.java]
     }
@@ -61,7 +56,7 @@ class ListasFragment : Fragment() {
         emptyState.text = "Nenhuma lista"
         emptyState.visibility = View.GONE
 
-        // Configurar ViewModel
+        // Adicionar observador ao ViewModel
         model.listas.observe(this, Observer {
             adapter.insertAll(it)
             swipeToRefresh.isRefreshing = false
@@ -76,32 +71,7 @@ class ListasFragment : Fragment() {
 
         // Botão novo
         btnNovo.setOnClickListener {
-            val sheetDialog = BottomSheetDialog(this.context!!)
-            val sheetView = activity!!.layoutInflater.inflate(R.layout.bottom_sheet_nova_lista, null)
-
-            val listaText = (sheetView.findViewById(R.id.listaEdit) as EditText).apply {
-                it.requestFocus()
-            }
-
-            // Botão confirmar
-            val btnConfirmar: Button = sheetView.findViewById(R.id.btnSalvar)
-            btnConfirmar.setOnClickListener {
-                model.inserirLista(ListaModel(
-                    id = UUID.randomUUID().toString(),
-                    nome = listaText.text.toString()))
-                sheetDialog.dismiss()
-            }
-
-            // Abrir dialog
-            sheetDialog.apply {
-                setContentView(sheetView)
-                setOnShowListener {
-                    listaText.requestFocus()
-                    sheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-                }
-                show()
-            }
-
+            incluir()
         }
 
         return view
@@ -120,9 +90,57 @@ class ListasFragment : Fragment() {
             )
         }
 
+        // Configurar o Swipe To Refresh
         swipeToRefresh.isRefreshing = true
         swipeToRefresh.setOnRefreshListener {
             model.loadListas(model.listas)
+        }
+    }
+
+    // Incluir
+    private fun incluir() {
+        val sheetDialog = BottomSheetDialog(this.context!!)
+        val sheetView = activity!!.layoutInflater.inflate(R.layout.bottom_sheet_nova_lista, null)
+
+        val listaText = (sheetView.findViewById(R.id.listaEdit) as EditText).apply {
+            requestFocus()
+        }
+
+        // Botão confirmar
+        val btnConfirmar: Button = sheetView.findViewById(R.id.btnSalvar)
+        btnConfirmar.setOnClickListener {
+            if (listaText.text.toString().isBlank()) {
+                sheetDialog.dismiss()
+                return@setOnClickListener
+            }
+
+            model.inserirLista(ListaModel(
+                id = UUID.randomUUID().toString(),
+                nome = listaText.text.toString()))
+            sheetDialog.dismiss()
+        }
+
+        // Abrir dialog
+        sheetDialog.apply {
+            setContentView(sheetView)
+            setOnShowListener {
+
+                // Abrir teclado quando mostrar o alert
+                sheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+
+                // Corrigir sobreposição do teclado
+                val childLayout = sheetView.layoutParams
+                val displayMetrics = DisplayMetrics()
+
+                requireActivity()
+                    .windowManager
+                    .defaultDisplay
+                    .getMetrics(displayMetrics)
+
+                childLayout.height = displayMetrics.heightPixels / 2
+                sheetView.layoutParams = childLayout
+            }
+            show()
         }
     }
 
@@ -139,7 +157,12 @@ class ListasFragment : Fragment() {
             .Builder(context)
             .setTitle("Editar lista")
             .setView(view)
-            .setPositiveButton("Salvar") { _, _ ->
+            .setPositiveButton("Salvar") { dialogInterface, _ ->
+                if (editText.text.toString().isBlank()) {
+                    dialogInterface.dismiss()
+                    return@setPositiveButton
+                }
+
                 lista.nome = editText.text.toString()
 
                 // Fazer edição
@@ -179,7 +202,6 @@ class ListasFragment : Fragment() {
     // Atualizar o título da AppBar
     override fun onResume() {
         super.onResume()
-
         activity?.title = "Nuvem To-Do List"
     }
 

@@ -9,7 +9,7 @@ import com.example.nuvem.todolist.R
 import com.example.nuvem.todolist.models.TarefaModel
 import android.graphics.Paint
 import android.widget.*
-import com.example.nuvem.todolist.TarefasFragment
+import com.example.nuvem.todolist.fragments.TarefasFragment
 
 class TarefasAdapter(
     private val fragment: TarefasFragment,
