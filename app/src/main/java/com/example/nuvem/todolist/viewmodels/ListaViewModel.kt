@@ -1,23 +1,19 @@
 package com.example.nuvem.todolist.viewmodels
 
 import android.app.Application
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.example.nuvem.todolist.dagger.DaggerViewModelComponent
 import com.example.nuvem.todolist.db.AppDatabase
 import com.example.nuvem.todolist.models.ListaModel
 import com.example.nuvem.todolist.models.ResponseModel
 import com.example.nuvem.todolist.net.ListasService
-import com.example.nuvem.todolist.utils.Executor.Companion.async
-import com.example.nuvem.todolist.utils.Executor.Companion.sync
+import com.example.nuvem.todolist.utils.Executor.Companion.backgroundThread
+import com.example.nuvem.todolist.utils.Executor.Companion.mainThread
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import javax.inject.Inject
 
 class ListaViewModel(application: Application) : AndroidViewModel(application) {
@@ -50,12 +46,12 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
             // Se houver falha, ler os dados que estão salvos no Room
             override fun onFailure(call: Call<List<ListaModel>>, t: Throwable) {
                 // Ler os dados do Room
-                async {
-                    val list = db.listasDao().getAll()
+                backgroundThread {
+                    val lista = db.listasDao().getAll()
 
                     // Executar na MainThread
-                    sync(this@ListaViewModel.getApplication() as Application) {
-                        this@ListaViewModel.listas.value = list
+                    mainThread(this@ListaViewModel.getApplication() as Application) {
+                        this@ListaViewModel.listas.value = lista
                     }
                 }
             }
@@ -70,7 +66,7 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
                 // Apagar todos as listas do banco
                 response.body()?.run {
                     if (this.isNotEmpty()) {
-                        async {
+                        backgroundThread {
                             db.listasDao().deleteAll()
                         }
                     }
@@ -78,7 +74,7 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
 
                 // Adicionar no banco de dados
                 response.body()?.forEach {
-                    async {
+                    backgroundThread {
                         db.listasDao().insert(it)
                     }
                 }
@@ -103,12 +99,12 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
                 val res = response.body()
                 res?.run {
 
-                    val target = listas.value?.filter { it.id == listModel.id }?.first()
+                    val target = listas.value?.first { it.id == listModel.id }
                     target?.run {
                         target.id = res.message
 
                         // Excluir o ID antigo e incluir o novo
-                        async {
+                        backgroundThread {
                             db.listasDao().delete(listModel)
                             db.listasDao().insert(target)
                         }
@@ -118,14 +114,14 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
         })
 
         // Inserir no banco de dados
-        async {
+        backgroundThread {
             db.listasDao().insert(listModel)
         }
     }
 
     // Editar lista
     fun editarLista(listModel: ListaModel) {
-        listas.value?.filter { it.id == listModel.id }?.first()?.apply {
+        listas.value?.first { it.id == listModel.id }?.apply {
             nome = listModel.nome
 
             // Editar na API
@@ -139,7 +135,7 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
             })
 
             // Editar no banco de dados
-            async {
+            backgroundThread {
                 db.listasDao().insert(this)
             }
         }
@@ -160,7 +156,7 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
         })
 
         // Remover do banco de dados
-        async {
+        backgroundThread {
             db.listasDao().delete(listModel)
         }
 

@@ -8,11 +8,13 @@ class Executor {
 
     companion object {
 
-        fun async(run: () -> Unit) {
+        // Background
+        fun backgroundThread(run: () -> Unit) {
             Executors.newSingleThreadExecutor().execute(run)
         }
 
-        fun sync(application: Application, run: () -> Unit) {
+        // MainThread
+        fun mainThread(application: Application, run: () -> Unit) {
             ContextCompat.getMainExecutor(application).execute(run)
         }
 

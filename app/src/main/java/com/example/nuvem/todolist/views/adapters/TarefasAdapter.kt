@@ -19,15 +19,9 @@ class TarefasAdapter(
     // ViewHolder
     class TarefasViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
 
-        val checkBox: CheckBox
-        val titulo: TextView
-        val btnMore: ImageButton
-
-        init {
-            this.checkBox = itemView.findViewById(R.id.checkBox)
-            this.titulo = itemView.findViewById(R.id.titulo)
-            this.btnMore = itemView.findViewById(R.id.btnMore)
-        }
+        val checkBox: CheckBox = itemView.findViewById(R.id.checkBox)
+        val titulo: TextView = itemView.findViewById(R.id.titulo)
+        val btnMore: ImageButton = itemView.findViewById(R.id.btnMore)
 
     }
 
@@ -40,24 +34,26 @@ class TarefasAdapter(
 
     // onBindViewHolder
     override fun onBindViewHolder(holder: TarefasViewHolder, position: Int) {
-        holder.titulo.text = listTarefas.get(position).tarefa
+
+        // Titulo da tarefa
+        holder.titulo.text = listTarefas[position].tarefa
 
         // Tarefa marcada como concluida
-        if (listTarefas.get(position).completed) {
-            holder.titulo.setPaintFlags(holder.titulo.getPaintFlags() or Paint.STRIKE_THRU_TEXT_FLAG)
+        if (listTarefas[position].completed) {
+            holder.titulo.paintFlags = holder.titulo.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG // Riscar texto
             holder.titulo.setTypeface(holder.titulo.typeface, Typeface.ITALIC)
             holder.checkBox.isChecked = true
         } else {
             // Tarefa ainda não foi concluída
-            holder.titulo.setPaintFlags(holder.titulo.getPaintFlags() and Paint.STRIKE_THRU_TEXT_FLAG.inv())
-            holder.checkBox.isChecked = false
+            holder.titulo.paintFlags = holder.titulo.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv() // Não riscar o texto
             holder.titulo.typeface = Typeface.DEFAULT
+            holder.checkBox.isChecked = false
         }
 
         // Marcar/desmarcar como concluída
         holder.itemView.setOnClickListener {
-            listTarefas.get(position).completed = listTarefas.get(position).completed.not()
-            fragment.marcarDesmarcar(listTarefas.get(position))
+            listTarefas[position].completed = listTarefas[position].completed.not()
+            fragment.marcarDesmarcar(listTarefas[position])
             notifyItemChanged(position)
         }
 
@@ -70,12 +66,12 @@ class TarefasAdapter(
                     when (it.itemId) {
                         // Editar
                         R.id.menuEditar -> {
-                            fragment.editar(listTarefas.get(position), position)
+                            fragment.editar(listTarefas[position], position)
                             true
                         }
                         // Excluir
                         R.id.menuExcluir -> {
-                            fragment.excluir(listTarefas.get(position))
+                            fragment.excluir(listTarefas[position])
                             true
                         }
                         else -> false

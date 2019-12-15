@@ -3,7 +3,6 @@ package com.example.nuvem.todolist.views
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.*
 import android.widget.Button
 import androidx.fragment.app.Fragment
@@ -52,7 +51,8 @@ class ListasFragment : Fragment() {
         btnNovo = view.findViewById(R.id.btnNovo)
         swipeToRefresh = view.findViewById(R.id.swipeToRefresh)
         emptyState = view.findViewById(R.id.emptyState)
-        emptyState.text = "Nenhuma lista"
+
+        emptyState.text = resources.getString(R.string.nenhuma_lista)
         emptyState.visibility = View.GONE
 
         // Adicionar observador ao ViewModel
@@ -127,17 +127,6 @@ class ListasFragment : Fragment() {
                 // Abrir teclado quando mostrar o alert
                 sheetDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
 
-                // Corrigir sobreposição do teclado
-                val childLayout = sheetView.layoutParams
-                val displayMetrics = DisplayMetrics()
-
-                requireActivity()
-                    .windowManager
-                    .defaultDisplay
-                    .getMetrics(displayMetrics)
-
-                childLayout.height = displayMetrics.heightPixels / 2
-                sheetView.layoutParams = childLayout
             }
             show()
         }
@@ -154,9 +143,9 @@ class ListasFragment : Fragment() {
         // Abrir dialog
         val alert = AlertDialog
             .Builder(context)
-            .setTitle("Editar lista")
+            .setTitle(resources.getString(R.string.editar_lista))
             .setView(view)
-            .setPositiveButton("Salvar") { dialogInterface, _ ->
+            .setPositiveButton(resources.getString(R.string.salvar)) { dialogInterface, _ ->
                 if (editText.text.toString().isBlank()) {
                     dialogInterface.dismiss()
                     return@setPositiveButton
@@ -168,7 +157,7 @@ class ListasFragment : Fragment() {
                 model.editarLista(lista)
                 adapter.notifyItemChanged(position)
             }
-            .setNegativeButton("Cancelar") { dialogInterface, _ ->
+            .setNegativeButton(resources.getString(R.string.cancelar)) { dialogInterface, _ ->
                 dialogInterface.dismiss()
             }
             .create()
@@ -185,15 +174,15 @@ class ListasFragment : Fragment() {
     fun excluir(lista: ListaModel) {
         AlertDialog
             .Builder(context)
-            .setMessage("Deseja excluir esta lista ?")
-            .setPositiveButton("Sim") { _, _ ->
+            .setMessage(resources.getString(R.string.deseja_excluir_esta_lista))
+            .setPositiveButton(resources.getString(R.string.sim)) { _, _ ->
                 model.excluirLista(lista)
 
-                "Lista excluída".snackbar(view!!) {
+                resources.getString(R.string.lista_excluida).snackbar(view!!) {
                     model.inserirLista(lista)
                 }
             }
-            .setNegativeButton("Não") { dialogInterface, _ ->
+            .setNegativeButton(resources.getString(R.string.nao)) { dialogInterface, _ ->
                 dialogInterface.dismiss()
             }
             .show()
@@ -202,7 +191,7 @@ class ListasFragment : Fragment() {
     // Atualizar o título da AppBar
     override fun onResume() {
         super.onResume()
-        activity?.title = "Nuvem To-Do List"
+        activity?.title = resources.getString(R.string.app_name)
     }
 
 }

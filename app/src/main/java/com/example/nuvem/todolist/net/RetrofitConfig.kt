@@ -8,7 +8,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Module
 class RetrofitConfig {
 
-    val retrofit = Retrofit
+    // Configuração do Retrofit
+    private val retrofit = Retrofit
         .Builder()
         .baseUrl("http://34.66.174.25/")
         .addConverterFactory(GsonConverterFactory.create())

@@ -2,8 +2,6 @@ package com.example.nuvem.todolist.net
 
 import com.example.nuvem.todolist.models.ListaModel
 import com.example.nuvem.todolist.models.ResponseModel
-import dagger.Module
-import dagger.Provides
 import retrofit2.Call
 import retrofit2.http.*
 

@@ -2,7 +2,6 @@ package com.example.nuvem.todolist.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import com.example.nuvem.todolist.dagger.DaggerViewModelComponent
@@ -14,8 +13,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
-import com.example.nuvem.todolist.utils.Executor.Companion.async
-import com.example.nuvem.todolist.utils.Executor.Companion.sync
+import com.example.nuvem.todolist.utils.Executor.Companion.backgroundThread
+import com.example.nuvem.todolist.utils.Executor.Companion.mainThread
 
 class TarefaViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -49,12 +48,12 @@ class TarefaViewModel(application: Application) : AndroidViewModel(application) 
             // Se houver falha, ler os dados que estão salvos no Room
             override fun onFailure(call: Call<List<TarefaModel>>, t: Throwable) {
                 // Ler os dados do Room
-                async {
-                    val list = db.tarefasDao().getAll(idlista)
+                backgroundThread {
+                    val lista = db.tarefasDao().getAll(idlista)
 
                     // Executar na MainThread
-                    sync(this@TarefaViewModel.getApplication() as Application) {
-                        this@TarefaViewModel.tarefas?.value = list
+                    mainThread(this@TarefaViewModel.getApplication() as Application) {
+                        this@TarefaViewModel.tarefas?.value = lista
                     }
                 }
             }
@@ -68,7 +67,7 @@ class TarefaViewModel(application: Application) : AndroidViewModel(application) 
 
                 // Adicionar no banco de dados
                 response.body()?.forEach {
-                    async {
+                    backgroundThread {
                         db.tarefasDao().insert(it)
                     }
                 }
@@ -93,12 +92,12 @@ class TarefaViewModel(application: Application) : AndroidViewModel(application) 
                 val res = response.body()
                 res?.run {
 
-                    val target = tarefas?.value?.filter { it.id == tarefaModel.id }?.first()
+                    val target = tarefas?.value?.first { it.id == tarefaModel.id }
                     target?.run {
                         target.id = res.message
 
                         // Excluir o ID antigo e incluir o novo
-                        async {
+                        backgroundThread {
                             db.tarefasDao().delete(tarefaModel)
                             db.tarefasDao().insert(target)
                         }
@@ -108,14 +107,14 @@ class TarefaViewModel(application: Application) : AndroidViewModel(application) 
         })
 
         // Inserir no banco de dados
-        async {
+        backgroundThread {
             db.tarefasDao().insert(tarefaModel)
         }
     }
 
     // Editar tarefa
     fun editarTarefa(tarefaModel: TarefaModel) {
-        tarefas?.value?.filter { it.id == tarefaModel.id }?.first()?.apply {
+        tarefas?.value?.first { it.id == tarefaModel.id }?.apply {
             tarefa = tarefaModel.tarefa
 
             // Editar na API
@@ -129,7 +128,7 @@ class TarefaViewModel(application: Application) : AndroidViewModel(application) 
             })
 
             // Editar no banco de dados
-            async {
+            backgroundThread {
                 db.tarefasDao().insert(this)
             }
         }
@@ -150,14 +149,14 @@ class TarefaViewModel(application: Application) : AndroidViewModel(application) 
         })
 
         // Remover do banco de dados
-        async {
+        backgroundThread {
             db.tarefasDao().delete(tarefaModel)
         }
     }
 
     // Marcar/desmarcar tarefa
     fun marcarDesmarcar(tarefaModel: TarefaModel) {
-        tarefas?.value?.filter { it.id == tarefaModel.id }?.first()?.apply {
+        tarefas?.value?.first { it.id == tarefaModel.id }?.apply {
 
             // Alterar status na API
             tarefasService.status(tarefaModel.idlista, tarefaModel.id, mapOf("completed" to tarefaModel.completed)).enqueue(object: Callback<ResponseModel> {
@@ -170,7 +169,7 @@ class TarefaViewModel(application: Application) : AndroidViewModel(application) 
             })
 
             // Editar no banco de dados
-            async {
+            backgroundThread {
                 db.tarefasDao().insert(this)
             }
         }

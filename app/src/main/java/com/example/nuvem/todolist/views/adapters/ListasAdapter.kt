@@ -17,13 +17,8 @@ class ListasAdapter(
     // ViewHolder
     class ListasViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val titulo: TextView
-        val btnMore: ImageButton
-
-        init {
-            titulo = itemView.findViewById(R.id.titulo)
-            btnMore = itemView.findViewById(R.id.btnMore)
-        }
+        val titulo: TextView = itemView.findViewById(R.id.titulo)
+        val btnMore: ImageButton = itemView.findViewById(R.id.btnMore)
 
     }
 
@@ -35,12 +30,15 @@ class ListasAdapter(
 
     // onBindViewHolder
     override fun onBindViewHolder(holder: ListasViewHolder, position: Int) {
+
+        // Ao clicar sobre uma lista, irá para a tela de tarefas
         holder.itemView.setOnClickListener {
-            val action = ListasFragmentDirections.actionListaListasFragmentToListaTarefasFragment(list.get(position))
+            val action = ListasFragmentDirections.actionListaListasFragmentToListaTarefasFragment(list[position])
             fragment.findNavController().navigate(action)
         }
 
-        holder.titulo.text = list.get(position).nome
+        // Título da lista
+        holder.titulo.text = list[position].nome
 
         // Menu de opções
         holder.btnMore.setOnClickListener {
@@ -51,12 +49,12 @@ class ListasAdapter(
                     when (it.itemId) {
                         // Editar
                         R.id.menuEditar -> {
-                            fragment.editar(list.get(position), position)
+                            fragment.editar(list[position], position)
                             true
                         }
                         // Excluir
                         R.id.menuExcluir -> {
-                            fragment.excluir(list.get(position))
+                            fragment.excluir(list[position])
                             true
                         }
                         else -> false

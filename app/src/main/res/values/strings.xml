@@ -3,6 +3,20 @@
     <string name="nova_lista">Nova Lista</string>
     <string name="ex_lista_de_compras">Ex: Lista de compras</string>
     <string name="salvar">Salvar</string>
+    <string name="cancelar">Cancelar</string>
     <string name="nova_tarefa">Nova Tarefa</string>
     <string name="ex_estudar_android">Ex: Estudar Android</string>
+    <string name="editar_lista">Editar lista</string>
+    <string name="sim">Sim</string>
+    <string name="nao">Não</string>
+    <string name="deseja_excluir_esta_lista">Deseja excluir esta lista ?</string>
+    <string name="nenhuma_lista">Nenhuma lista</string>
+    <string name="lista_excluida">Lista excluída</string>
+    <string name="nenhuma_tarefa">Nenhuma tarefa</string>
+    <string name="editar_tarefa">Editar tarefa</string>
+    <string name="tarefa_excluida">Tarefa excluída</string>
+    <string name="deseja_excluir_esta_tarefa">Deseja excluir esta tarefa ?</string>
+    <string name="desfazer">Desfazer</string>
+    <string name="editar">Editar</string>
+    <string name="excluir">Excluir</string>
 </resources>
