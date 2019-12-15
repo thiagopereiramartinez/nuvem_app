@@ -4,22 +4,16 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nuvem.todolist.TarefasFragmentDirections
 import com.example.nuvem.todolist.R
-import com.example.nuvem.todolist.models.ListaModel
 import com.example.nuvem.todolist.models.TarefaModel
-import android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
 import android.graphics.Paint
+import android.widget.*
+import com.example.nuvem.todolist.TarefasFragment
 
 class TarefasAdapter(
-    private val fragment: Fragment,
-    private val listTarefas: ArrayList<TarefaModel>
+    private val fragment: TarefasFragment,
+    var listTarefas: List<TarefaModel>
     ) : RecyclerView.Adapter<TarefasAdapter.TarefasViewHolder>() {
 
     // ViewHolder
@@ -27,10 +21,12 @@ class TarefasAdapter(
 
         val checkBox: CheckBox
         val titulo: TextView
+        val btnMore: ImageButton
 
         init {
             this.checkBox = itemView.findViewById(R.id.checkBox)
             this.titulo = itemView.findViewById(R.id.titulo)
+            this.btnMore = itemView.findViewById(R.id.btnMore)
         }
 
     }
@@ -47,7 +43,7 @@ class TarefasAdapter(
         holder.titulo.text = listTarefas.get(position).tarefa
 
         // Tarefa marcada como concluida
-        if (listTarefas.get(position).status == TarefaModel.Status.DONE.status) {
+        if (listTarefas.get(position).completed) {
             holder.titulo.setPaintFlags(holder.titulo.getPaintFlags() or Paint.STRIKE_THRU_TEXT_FLAG)
             holder.titulo.setTypeface(holder.titulo.typeface, Typeface.ITALIC)
             holder.checkBox.isChecked = true
@@ -58,23 +54,41 @@ class TarefasAdapter(
             holder.titulo.typeface = Typeface.DEFAULT
         }
 
-        // Alterar status quando clicar no Checkbox
-        holder.checkBox.setOnClickListener {
-            listTarefas.get(position).status = if (holder.checkBox.isChecked) TarefaModel.Status.DONE.status else TarefaModel.Status.PENDING.status
-            notifyDataSetChanged()
+        // Marcar/desmarcar como concluída
+        holder.itemView.setOnClickListener {
+            listTarefas.get(position).completed = listTarefas.get(position).completed.not()
+            fragment.marcarDesmarcar(listTarefas.get(position))
+            notifyItemChanged(position)
         }
 
-        // Editar tarefa
-        holder.itemView.setOnClickListener {
-            val action = TarefasFragmentDirections.actionListaTarefasFragmentToDetalhesTarefaFragment(listTarefas.get(position))
-            fragment.findNavController().navigate(action)
+        // Menu de opções
+        holder.btnMore.setOnClickListener {
+            val popup = PopupMenu(fragment.context!!, holder.btnMore)
+            popup.apply {
+                menuInflater.inflate(R.menu.popup_menu, menu)
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        // Editar
+                        R.id.menuEditar -> {
+                            fragment.editar(listTarefas.get(position), position)
+                            true
+                        }
+                        // Excluir
+                        R.id.menuExcluir -> {
+                            fragment.excluir(listTarefas.get(position))
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                show()
+            }
         }
     }
 
     // insertAll
     fun insertAll(list: List<TarefaModel>) {
-        this.listTarefas.clear()
-        this.listTarefas.addAll(list)
+        this.listTarefas = list
         notifyDataSetChanged()
     }
 

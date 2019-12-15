@@ -8,15 +8,9 @@ import java.io.Serializable
 @Keep
 @Entity(tableName = "tarefas")
 data class TarefaModel(
-    @PrimaryKey val id: String,
+    @PrimaryKey var id: String,
     @ColumnInfo val idlista: String,
-    @ColumnInfo val tarefa: String,
+    @ColumnInfo var tarefa: String,
     @ColumnInfo val created_at: String = DateTime.now,
-    @ColumnInfo var status: String = Status.PENDING.status
-) : Serializable {
-
-    enum class Status(val status: String) {
-        PENDING("0"), DONE("1")
-    }
-
-}
+    @ColumnInfo var completed: Boolean = false
+) : Serializable

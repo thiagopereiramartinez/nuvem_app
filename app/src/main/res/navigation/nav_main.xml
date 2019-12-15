@@ -9,24 +9,9 @@
         android:id="@+id/listaTarefasFragment"
         android:name="com.example.nuvem.todolist.TarefasFragment"
         tools:layout="@layout/fragment_lista_tarefas" >
-        <action
-            android:id="@+id/action_listaTarefasFragment_to_detalhesTarefaFragment"
-            app:destination="@id/detalhesTarefaFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
             android:name="lista"
             app:argType="com.example.nuvem.todolist.models.ListaModel" />
-    </fragment>
-    <fragment
-        android:id="@+id/detalhesTarefaFragment"
-        android:name="com.example.nuvem.todolist.DetalhesTarefaFragment"
-        tools:layout="@layout/fragment_detalhes_tarefa" >
-        <argument
-            android:name="tarefa"
-            app:argType="com.example.nuvem.todolist.models.TarefaModel" />
     </fragment>
     <fragment
         android:id="@+id/listaListasFragment"

@@ -1,24 +1,17 @@
 package com.example.nuvem.todolist.adapters
 
-import android.app.AlertDialog
-import android.content.Context
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.example.nuvem.todolist.ListasFragment
 import com.example.nuvem.todolist.ListasFragmentDirections
 import com.example.nuvem.todolist.R
-import com.example.nuvem.todolist.TarefasFragmentDirections
 import com.example.nuvem.todolist.models.ListaModel
-import com.example.nuvem.todolist.viewmodels.ListaViewModel
 
 class ListasAdapter(
-    private val fragment: Fragment,
-    private val list: ArrayList<ListaModel>
+    private val fragment: ListasFragment,
+    var list: List<ListaModel>
 ) : RecyclerView.Adapter<ListasAdapter.ListasViewHolder>() {
 
     // ViewHolder
@@ -58,12 +51,12 @@ class ListasAdapter(
                     when (it.itemId) {
                         // Editar
                         R.id.menuEditar -> {
-                            editar(list.get(position), position)
+                            fragment.editar(list.get(position), position)
                             true
                         }
                         // Excluir
                         R.id.menuExcluir -> {
-                            excluir(list.get(position))
+                            fragment.excluir(list.get(position))
                             true
                         }
                         else -> false
@@ -74,58 +67,9 @@ class ListasAdapter(
         }
     }
 
-    // Editar
-    private fun editar(lista: ListaModel, position: Int) {
-        // Inflar a caixa de texto
-        val view = LayoutInflater.from(fragment.context).inflate(R.layout.edit_dialog, null )
-        val editText:EditText = view.findViewById(R.id.editText)
-        editText.setText(lista.nome)
-        editText.requestFocus()
-
-        // Abrir dialog
-        val alert = AlertDialog
-            .Builder(fragment.context)
-            .setTitle("Editar lista")
-            .setView(view)
-            .setPositiveButton("Salvar") { _, _ ->
-                lista.nome = editText.text.toString()
-
-                // Fazer edição
-                val model = ViewModelProviders.of(fragment)[ListaViewModel::class.java]
-                model.editarLista(lista)
-                notifyItemChanged(position)
-            }
-            .setNegativeButton("Cancelar") { dialogInterface, _ ->
-                dialogInterface.dismiss()
-            }
-            .create()
-
-        alert.setOnShowListener {
-            alert.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-        }
-
-        alert.show()
-    }
-
-    // Excluir
-    private fun excluir(lista: ListaModel) {
-        AlertDialog
-            .Builder(fragment.context)
-            .setMessage("Deseja excluir esta lista ?")
-            .setPositiveButton("Sim") { _, _ ->
-                val model = ViewModelProviders.of(fragment)[ListaViewModel::class.java]
-                model.excluirLista(lista)
-            }
-            .setNegativeButton("Não") { dialogInterface, _ ->
-                dialogInterface.dismiss()
-            }
-            .show()
-    }
-
     // insertAll
     fun insertAll(list: List<ListaModel>) {
-        this.list.clear()
-        this.list.addAll(list)
+        this.list = list
         notifyDataSetChanged()
     }
 

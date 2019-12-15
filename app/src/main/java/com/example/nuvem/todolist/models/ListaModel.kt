@@ -9,6 +9,6 @@ import java.io.Serializable
 @Keep
 @Entity(tableName = "listas")
 data class ListaModel(
-    @PrimaryKey val id: String,
+    @PrimaryKey var id: String,
     @ColumnInfo var nome: String
 ) : Serializable

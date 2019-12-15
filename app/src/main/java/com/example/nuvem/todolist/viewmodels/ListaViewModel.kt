@@ -11,6 +11,8 @@ import com.example.nuvem.todolist.db.AppDatabase
 import com.example.nuvem.todolist.models.ListaModel
 import com.example.nuvem.todolist.models.ResponseModel
 import com.example.nuvem.todolist.net.ListasService
+import com.example.nuvem.todolist.utils.Executor.Companion.async
+import com.example.nuvem.todolist.utils.Executor.Companion.sync
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -48,11 +50,11 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
             // Se houver falha, ler os dados que estão salvos no Room
             override fun onFailure(call: Call<List<ListaModel>>, t: Throwable) {
                 // Ler os dados do Room
-                Executors.newSingleThreadExecutor().execute {
+                async {
                     val list = db.listasDao().getAll()
 
                     // Executar na MainThread
-                    ContextCompat.getMainExecutor(this@ListaViewModel.getApplication() as Application).execute {
+                    sync(this@ListaViewModel.getApplication() as Application) {
                         this@ListaViewModel.listas.value = list
                     }
                 }
@@ -65,14 +67,18 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
                 // Adicionar resultado ao LiveData
                 list.value = response.body()?.sortedBy { it.nome }
 
-                // Apagar todos os registros no banco
-                Executors.newSingleThreadExecutor().execute {
-                    db.listasDao().deleteAll()
+                // Apagar todos as listas do banco
+                response.body()?.run {
+                    if (this.isNotEmpty()) {
+                        async {
+                            db.listasDao().deleteAll()
+                        }
+                    }
                 }
 
                 // Adicionar no banco de dados
                 response.body()?.forEach {
-                    Executors.newSingleThreadExecutor().execute {
+                    async {
                         db.listasDao().insert(it)
                     }
                 }
@@ -91,11 +97,28 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
             override fun onResponse(
                 call: Call<ResponseModel>,
                 response: Response<ResponseModel>
-            ) = Unit
+            ) {
+
+                // Atualizar o ID retornado pela API
+                val res = response.body()
+                res?.run {
+
+                    val target = listas.value?.filter { it.id == listModel.id }?.first()
+                    target?.run {
+                        target.id = res.message
+
+                        // Excluir o ID antigo e incluir o novo
+                        async {
+                            db.listasDao().delete(listModel)
+                            db.listasDao().insert(target)
+                        }
+                    }
+                }
+            }
         })
 
         // Inserir no banco de dados
-        Executors.newSingleThreadExecutor().execute {
+        async {
             db.listasDao().insert(listModel)
         }
     }
@@ -116,7 +139,7 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
             })
 
             // Editar no banco de dados
-            Executors.newSingleThreadExecutor().execute {
+            async {
                 db.listasDao().insert(this)
             }
         }
@@ -137,9 +160,10 @@ class ListaViewModel(application: Application) : AndroidViewModel(application) {
         })
 
         // Remover do banco de dados
-        Executors.newSingleThreadExecutor().execute {
+        async {
             db.listasDao().delete(listModel)
         }
+
     }
 
 }
