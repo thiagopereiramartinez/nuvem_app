@@ -1,4 +1,4 @@
-package com.example.nuvem.todolist.extensions
+package com.example.nuvem.todolist.utils
 
 import android.app.Activity
 import android.content.Context
@@ -11,7 +11,7 @@ fun String.toast(context: Context?, duration: Int = Toast.LENGTH_SHORT) {
 }
 
 fun String.snackbar(view: View, duration: Int = Snackbar.LENGTH_LONG, actionLabel: String = "Desfazer", action: () -> Unit) {
-    Snackbar.make(view, this, duration).setAction("Desfazer") {
+    Snackbar.make(view, this, duration).setAction(actionLabel) {
         action()
     }.show()
 }

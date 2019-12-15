@@ -1,4 +1,4 @@
-package com.example.nuvem.todolist.adapters
+package com.example.nuvem.todolist.views.adapters
 
 import android.graphics.Typeface
 import android.view.LayoutInflater
@@ -9,7 +9,7 @@ import com.example.nuvem.todolist.R
 import com.example.nuvem.todolist.models.TarefaModel
 import android.graphics.Paint
 import android.widget.*
-import com.example.nuvem.todolist.fragments.TarefasFragment
+import com.example.nuvem.todolist.views.TarefasFragment
 
 class TarefasAdapter(
     private val fragment: TarefasFragment,
@@ -86,8 +86,8 @@ class TarefasAdapter(
         }
     }
 
-    // insertAll
-    fun insertAll(list: List<TarefaModel>) {
+    // Alterar lista
+    fun changeList(list: List<TarefaModel>) {
         this.listTarefas = list
         notifyDataSetChanged()
     }

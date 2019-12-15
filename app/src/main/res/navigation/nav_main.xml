@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/listaTarefasFragment"
-        android:name="com.example.nuvem.todolist.fragments.TarefasFragment"
+        android:name="com.example.nuvem.todolist.views.TarefasFragment"
         tools:layout="@layout/fragment_lista_tarefas" >
         <argument
             android:name="lista"
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/listaListasFragment"
-        android:name="com.example.nuvem.todolist.fragments.ListasFragment"
+        android:name="com.example.nuvem.todolist.views.ListasFragment"
         tools:layout="@layout/fragment_lista_listas" >
         <action
             android:id="@+id/action_listaListasFragment_to_listaTarefasFragment"

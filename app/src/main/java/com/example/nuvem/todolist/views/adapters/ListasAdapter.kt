@@ -1,12 +1,12 @@
-package com.example.nuvem.todolist.adapters
+package com.example.nuvem.todolist.views.adapters
 
 import android.view.*
 import android.widget.*
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.example.nuvem.todolist.fragments.ListasFragment
+import com.example.nuvem.todolist.views.ListasFragment
 import com.example.nuvem.todolist.R
-import com.example.nuvem.todolist.fragments.ListasFragmentDirections
+import com.example.nuvem.todolist.views.ListasFragmentDirections
 import com.example.nuvem.todolist.models.ListaModel
 
 class ListasAdapter(
@@ -67,8 +67,8 @@ class ListasAdapter(
         }
     }
 
-    // insertAll
-    fun insertAll(list: List<ListaModel>) {
+    // Alterar lista
+    fun changeList(list: List<ListaModel>) {
         this.list = list
         notifyDataSetChanged()
     }
